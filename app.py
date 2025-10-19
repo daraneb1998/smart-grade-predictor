@@ -20,13 +20,13 @@ st.sidebar.info("Select whether to use the model trained with resampling or with
 
 # --- Load models based on selection ---
 if resampling_option == "With Resampling":
-    model = joblib.load("logistic_regression_model_with_resampling.joblib")
-    scaler = joblib.load("feature_scaler_with_resampling.joblib")
-    selected_features = joblib.load("selected_features.joblib")
+    model = joblib.load("models/logistic_regression_model_with_resampling.joblib")
+    scaler = joblib.load("models/feature_scaler_with_resampling.joblib")
+    selected_features = joblib.load("models/selected_features.joblib")
 else:
-    model = joblib.load("logistic_regression_model_without_resampling.joblib")
-    scaler = joblib.load("feature_scaler_without_resampling.joblib")
-    selected_features = joblib.load("selected_features.joblib")
+    model = joblib.load("models/logistic_regression_model_without_resampling.joblib")
+    scaler = joblib.load("models/feature_scaler_without_resampling.joblib")
+    selected_features = joblib.load("models/selected_features.joblib")
 
 # --- OrdinalEncoder for grades: F=0, D=1, C=2, B=3, A=4 ---
 grade_order = [["F", "D", "C", "B", "A"]]
@@ -66,6 +66,17 @@ if submitted:
         confidence = y_proba[pred_index] * 100
 
         st.success(f"🎯 **Predicted Grade:** {predicted_grade} ({confidence:.2f}% confidence)")
+
+        # --- Suggested Actions ---
+        st.subheader("💡 Suggested Actions")
+        suggestions = {
+            "A": "Excellent work! Keep up the good habits and maintain your performance.",
+            "B": "Good performance! Focus on weaker areas such as assignments or participation to reach A.",
+            "C": "Average performance. Spend more time studying, completing assignments/projects, and revising.",
+            "D": "Below average. Seek help from instructors, review past mistakes, and practice more consistently.",
+            "F": "Poor performance. Consider tutoring, extra practice, and revisiting fundamental concepts."
+        }
+        st.info(suggestions.get(predicted_grade, "No suggestion available."))
 
         # Feature importance
         st.subheader("Feature Influence")
