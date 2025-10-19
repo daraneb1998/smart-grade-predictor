@@ -9,19 +9,29 @@ from sklearn.preprocessing import OrdinalEncoder
 # --- App Configuration ---
 st.set_page_config(page_title="🎓 Grade Intelligence Dashboard", layout="wide")
 
-# --- Load models ---
-model = joblib.load("logistic_regression_model.joblib")
-scaler = joblib.load("feature_scaler.joblib")
-selected_features = joblib.load("selected_features.joblib")
+# --- Sidebar: Resampling Option ---
+st.sidebar.title("⚙️ Settings")
+resampling_option = st.sidebar.radio(
+    "Resampling Strategy",
+    ("Without Resampling", "With Resampling"),
+    index=0
+)
+st.sidebar.info("Select whether to use the model trained with resampling or without.")
 
-# OrdinalEncoder for grades: F=0, D=1, C=2, B=3, A=4
+# --- Load models based on selection ---
+if resampling_option == "With Resampling":
+    model = joblib.load("logistic_regression_model_with_resampling.joblib")
+    scaler = joblib.load("feature_scaler_with_resampling.joblib")
+    selected_features = joblib.load("selected_features.joblib")
+else:
+    model = joblib.load("logistic_regression_model_without_resampling.joblib")
+    scaler = joblib.load("feature_scaler_without_resampling.joblib")
+    selected_features = joblib.load("selected_features.joblib")
+
+# --- OrdinalEncoder for grades: F=0, D=1, C=2, B=3, A=4 ---
 grade_order = [["F", "D", "C", "B", "A"]]
 grade_encoder = OrdinalEncoder(categories=grade_order)
 grade_encoder.fit(np.array(grade_order[0]).reshape(-1,1))
-
-# --- Sidebar ---
-st.sidebar.title("⚙️ Settings")
-st.sidebar.info("Input scores manually (validated ranges) to predict final grade.")
 
 # --- Main Tab: Prediction Interface ---
 st.title("🎓 Smart Grade Predictor")
@@ -50,9 +60,9 @@ if submitted:
         y_pred_encoded = model.predict(X_input_scaled)
         predicted_grade = grade_encoder.inverse_transform(y_pred_encoded.reshape(-1,1))[0][0]
         
-        # Predict probabilities and confidence
+        # Predict confidence
         y_proba = model.predict_proba(X_input_scaled)[0]
-        pred_index = int(y_pred_encoded[0])   # <- Cast to int for indexing
+        pred_index = int(y_pred_encoded[0])
         confidence = y_proba[pred_index] * 100
 
         st.success(f"🎯 **Predicted Grade:** {predicted_grade} ({confidence:.2f}% confidence)")
