@@ -12,20 +12,20 @@ st.set_page_config(page_title="🎓 Grade Intelligence Dashboard", layout="wide"
 # --- Sidebar: Resampling Option ---
 st.sidebar.title("⚙️ Settings")
 resampling_option = st.sidebar.radio(
-    "Resampling Strategy",
-    ("Without Resampling", "With Resampling"),
+    "Dataset Imbalanced Strategy",
+    ("Class Weight Balanced", "Resampling"),
     index=0
 )
 st.sidebar.info("Select whether to use the model trained with resampling or without.")
 
 # --- Load models based on selection ---
-if resampling_option == "With Resampling":
+if resampling_option == "Resampling":
     model = joblib.load("models/logistic_regression_model_with_resampling.joblib")
     scaler = joblib.load("models/feature_scaler_with_resampling.joblib")
     selected_features = joblib.load("models/selected_features.joblib")
 else:
-    model = joblib.load("models/logistic_regression_model_without_resampling.joblib")
-    scaler = joblib.load("models/feature_scaler_without_resampling.joblib")
+    model = joblib.load("models/logistic_regression_model_with_cw.joblib")
+    scaler = joblib.load("models/feature_scaler_with_cw.joblib")
     selected_features = joblib.load("models/selected_features.joblib")
 
 # --- OrdinalEncoder for grades: F=0, D=1, C=2, B=3, A=4 ---
